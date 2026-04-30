@@ -1,5 +1,7 @@
 package in.tech_camp.chat_app.entity;
 
+import java.util.List;
+
 import lombok.Data;
 
 @Data
@@ -8,6 +10,7 @@ public class UserEntity {
   private String name;
   private String email;
   private String password;
-  
+  private List<RoomUserEntity> roomUsers;
+  //1つのユーザーに複数のRoomUserEntitiyが紐づく
 }
 //アプリケーション側のデータ
