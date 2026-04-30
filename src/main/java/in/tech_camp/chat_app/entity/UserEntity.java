@@ -10,3 +10,4 @@ public class UserEntity {
   private String password;
   
 }
+//アプリケーション側のデータ
