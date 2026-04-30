@@ -1,7 +1,13 @@
 package in.tech_camp.chat_app.controller;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
+import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -13,9 +19,9 @@ import in.tech_camp.chat_app.form.UserEditForm;
 import in.tech_camp.chat_app.form.UserForm;
 import in.tech_camp.chat_app.repository.UserRepository;
 import in.tech_camp.chat_app.service.UserService;
+import in.tech_camp.chat_app.validation.ValidationOrder;
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.RequestParam;
-
 
 @Controller
 @AllArgsConstructor
@@ -24,7 +30,7 @@ public class UserControler {
   private final UserRepository userRepository;
 
   private final UserService userService;
-  //UserServiceを使う宣言
+  // UserServiceを使う宣言
 
   @GetMapping("/users/sign_up") // ブラウザでこのurlにアクセスしている
   public String showSignUp(Model model) {
@@ -36,7 +42,30 @@ public class UserControler {
   }
 
   @PostMapping("/user")
-  public String createUser(@ModelAttribute("userForm") UserForm userForm, Model model) {
+  public String createUser(@ModelAttribute("userForm") @Validated(ValidationOrder.class) UserForm userForm,
+      BindingResult result, Model model) {
+    userForm.validatePasswordConfirmation(result);
+    if (userRepository.existsByEmail(userForm.getEmail())) {
+      result.rejectValue("email", "null", "Email already exists");
+      // そのメールアドレスが既に使われていたらエラーにする処理
+    }
+
+    if (result.hasErrors()) {
+      // エラーが１つでもあった場合
+      List<String> errorMessages = result.getAllErrors().stream()
+          // すべてのエラーを取り出す
+          .map(DefaultMessageSourceResolvable::getDefaultMessage)
+          // 表示用メッセージだけ抜き出す
+          .collect(Collectors.toList());
+      // エラーメッセージをListに変換する処理
+
+      model.addAttribute("errorMessages", errorMessages);
+      // HTMLで表示できるように渡す
+      model.addAttribute("userForm", userForm);
+      // 入力値も一緒に渡す
+      return "users/signUp";
+    }
+
     UserEntity userEntity = new UserEntity();
     userEntity.setName(userForm.getName());
     userEntity.setEmail(userForm.getEmail());
@@ -45,13 +74,13 @@ public class UserControler {
     // HTTP POSTリクエストを受け取る
 
     try {
-       userService.createUserWithEncryptedPassword(userEntity);
-       //ここからサービスクラスの処理を繰り返す
+      userService.createUserWithEncryptedPassword(userEntity);
+      // ここからサービスクラスの処理を繰り返す
     } catch (Exception e) {
       System.out.println("エラー：" + e);
       model.addAttribute("userForm", userForm);
-      //JavaのデータをHTMLに渡すために入れている
-      //エラーが起きても、前に入力した値を表示させる。
+      // JavaのデータをHTMLに渡すために入れている
+      // エラーが起きても、前に入力した値を表示させる。
 
       return "users/signUp";
     }
@@ -65,17 +94,18 @@ public class UserControler {
   @GetMapping("/users/login")
   public String LoginForm(Model model) {
     model.addAttribute("loginForm", new LoginForm());
-    //LoginFormのインスタンスを生成してモデルに入れている
+    // LoginFormのインスタンスを生成してモデルに入れている
     return "users/login";
-    //上の"users/login"はビュー
+    // 上の"users/login"はビュー
   }
 
   @GetMapping("/login")
-  public String login(@RequestParam(value = "error", required = false) String error, @ModelAttribute("loginForm") LoginForm loginForm, Model model) {  
-  //RequestParamでURLのパラメータerrorを受け取る  
-  //ログイン失敗時にはURLが?errorになる
+  public String login(@RequestParam(value = "error", required = false) String error,
+      @ModelAttribute("loginForm") LoginForm loginForm, Model model) {
+    // RequestParamでURLのパラメータerrorを受け取る
+    // ログイン失敗時にはURLが?errorになる
     if (error != null) {
-      //errorが存在しているときだけ処理する
+      // errorが存在しているときだけ処理する
       model.addAttribute("loginError", "メールアドレスかパスワードが間違っています。");
     }
     return "users/login";
@@ -95,7 +125,19 @@ public class UserControler {
   }
 
   @PostMapping("/users/{userId}")
-  public String updateUser(@PathVariable("userId") Integer userId, @ModelAttribute("user") UserEditForm userEditForm, Model model) {
+   public String updateUser(@PathVariable("userId") Integer userId, @ModelAttribute("user") @Validated(ValidationOrder.class) UserEditForm userEditForm, BindingResult result, Model model) {
+    String newEmail = userEditForm.getEmail();
+    if (userRepository.existsByEmailExcludingCurrent(newEmail, userId)) {
+      result.rejectValue("email", "error.user", "Email already exists");
+    }
+    if (result.hasErrors()) {
+      List<String> errorMessages = result.getAllErrors().stream()
+                                    .map(DefaultMessageSourceResolvable::getDefaultMessage)
+                                    .collect(Collectors.toList());
+      model.addAttribute("errorMessages", errorMessages);
+      model.addAttribute("user", userEditForm);
+      return "users/edit";
+    }
     UserEntity user = userRepository.findById(userId);
     user.setName(userEditForm.getName());
     user.setEmail(userEditForm.getEmail());
@@ -109,6 +151,5 @@ public class UserControler {
     }
     return "redirect:/";
   }
-  
 
 }

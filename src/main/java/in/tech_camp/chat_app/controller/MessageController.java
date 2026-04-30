@@ -16,10 +16,10 @@ public class MessageController {
   private final UserRepository userRepository;
 
   @GetMapping("/")
-  public String showMessages(@AuthenticationPrincipal CustomUserDetail currentUser, Model model){
-    //ログインユーザーの最新の情報を取得している
+  public String showMessages(@AuthenticationPrincipal CustomUserDetail currentUser, Model model) {
+    // ログインユーザーの最新の情報を取得している
     UserEntity user = userRepository.findById(currentUser.getId());
     model.addAttribute("user", user);
-      return "messages/index";
+    return "messages/index";
   }
 }
