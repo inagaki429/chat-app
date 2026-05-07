@@ -37,14 +37,17 @@ public class RoomController {
 
   private final RoomUserRepository roomUserRepository;
 
-  @GetMapping("/rooms/new")
-  public String showRoomNew(@AuthenticationPrincipal CustomUserDetail currentUser, Model model) {
-    List<UserEntity> users = userRepository.findAllExcept(currentUser.getId());
-    model.addAttribute("users", users);
-    model.addAttribute("roomForm", new RoomForm());
-    return "rooms/new";
+  @GetMapping("/")
+  public String index(@AuthenticationPrincipal CustomUserDetail currentUser, Model model) {
+    UserEntity user = userRepository.findById(currentUser.getId());
+    model.addAttribute("user", user);
+    List<RoomUserEntity> roomUserEntities = roomUserRepository.findByUserId(currentUser.getId());
+    List<RoomEntity> roomList = roomUserEntities.stream()
+        .map(RoomUserEntity::getRoom)
+        .collect(Collectors.toList());
+    model.addAttribute("rooms", roomList);
+    return "rooms/index";
   }
-  // チャットルーム作成画面のインスタンスを生成、ビューを返す
 
   @PostMapping("/rooms")
   public String createRoom(@ModelAttribute("RoomForm") @Validated(ValidationOrder.class) RoomForm roomForm,
@@ -58,7 +61,7 @@ public class RoomController {
       model.addAttribute("roomForm", roomForm);
       model.addAttribute("errorMessages", errorMessages);
       return "rooms/new";
-      //フォーム入力ミスがあったら、再入力画面にいく
+      // フォーム入力ミスがあったら、再入力画面にいく
     }
 
     RoomEntity roomEntity = new RoomEntity();
@@ -71,7 +74,7 @@ public class RoomController {
       model.addAttribute("users", users);
       model.addAttribute("roomForm", new RoomForm());
       return "rooms/new";
-      //ルーム作成に失敗したら、エラー表示なしで入力画面に戻す処理
+      // ルーム作成に失敗したら、エラー表示なしで入力画面に戻す処理
     }
 
     List<Integer> memberIds = roomForm.getMemberIds();
@@ -88,7 +91,7 @@ public class RoomController {
         model.addAttribute("users", users);
         model.addAttribute("roomForm", new RoomForm());
         return "rooms/new";
-        //ルームとユーザーの紐づけを１件ずつDBに保存している
+        // ルームとユーザーの紐づけを１件ずつDBに保存している
 
       }
     }

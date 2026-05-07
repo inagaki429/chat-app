@@ -23,7 +23,7 @@ public class MessageController {
 
   private final RoomUserRepository roomUserRepository;
 
-  @GetMapping("/")
+  @GetMapping("/message")
   public String showMessages(@AuthenticationPrincipal CustomUserDetail currentUser, Model model) {
     // ログインユーザーの最新の情報を取得している
     UserEntity user = userRepository.findById(currentUser.getId());
