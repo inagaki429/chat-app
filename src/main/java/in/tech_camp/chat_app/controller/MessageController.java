@@ -36,8 +36,7 @@ public class MessageController {
 
 
   @GetMapping("/rooms/{roomId}/messages")
-  public String showMessages(@PathVariable("roomId") Integer roomId,
-      @AuthenticationPrincipal CustomUserDetail currentUser, Model model) {
+  public String showMessages(@PathVariable("roomId") Integer roomId,@AuthenticationPrincipal CustomUserDetail currentUser, Model model) {
 
     UserEntity user = userRepository.findById(currentUser.getId());
     model.addAttribute("user", user);
@@ -53,6 +52,9 @@ public class MessageController {
     model.addAttribute("messageForm", new MessageForm());
     // インスタンス生成、ビューに渡す
     model.addAttribute("roomId", roomId);
+
+    List<MessageEntity> messages = messageRepository.findByRoomId(roomId);
+    model.addAttribute("messages", messages);
 
     return "messages/index";
   }
