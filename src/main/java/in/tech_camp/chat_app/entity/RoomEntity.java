@@ -10,4 +10,5 @@ public class RoomEntity {
   private String name;
   private List<RoomUserEntity> roomUsers;
   //1つのルームに複数のRoomUserEntitiyが紐づく
+  private List<MessageEntity> messages;
 }

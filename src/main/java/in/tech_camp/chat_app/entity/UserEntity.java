@@ -12,5 +12,6 @@ public class UserEntity {
   private String password;
   private List<RoomUserEntity> roomUsers;
   //1つのユーザーに複数のRoomUserEntitiyが紐づく
+  private List<MessageEntity> messages;
 }
 //アプリケーション側のデータ
