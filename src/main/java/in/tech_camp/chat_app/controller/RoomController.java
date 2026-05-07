@@ -49,7 +49,17 @@ public class RoomController {
     return "rooms/index";
   }
 
+  @GetMapping("/rooms/new")
+  public String showRoomNew(@AuthenticationPrincipal CustomUserDetail currentUser, Model model){
+    List<UserEntity> users = userRepository.findAllExcept(currentUser.getId());
+    model.addAttribute("users", users);
+    model.addAttribute("roomForm", new RoomForm());
+    return "rooms/new";
+  }
+
+
   @PostMapping("/rooms")
+  //送信
   public String createRoom(@ModelAttribute("RoomForm") @Validated(ValidationOrder.class) RoomForm roomForm,
       BindingResult bindingResult, @AuthenticationPrincipal CustomUserDetail currentUser, Model model) {
     if (bindingResult.hasErrors()) {
@@ -78,23 +88,20 @@ public class RoomController {
     }
 
     List<Integer> memberIds = roomForm.getMemberIds();
+    //画面で選ばれたユーザーid一覧を取得
     for (Integer userId : memberIds) {
       UserEntity userEntity = userRepository.findById(userId);
+      //idからユーザー情報をDBで取得
       RoomUserEntity roomUserEntity = new RoomUserEntity();
+      //インスタンス生成
       roomUserEntity.setRoom(roomEntity);
       roomUserEntity.setUser(userEntity);
-      try {
-        roomUserRepository.insert(roomUserEntity);
-      } catch (Exception e) {
-        System.out.println("エラー：" + e);
-        List<UserEntity> users = userRepository.findAllExcept(currentUser.getId());
-        model.addAttribute("users", users);
-        model.addAttribute("roomForm", new RoomForm());
-        return "rooms/new";
+      //ルームとユーザーのセット
+      
         // ルームとユーザーの紐づけを１件ずつDBに保存している
 
       }
-    }
+    
 
     return "redirect:/";
   }

@@ -20,4 +20,5 @@ public interface RoomUserRepository {
   @Select("SELECT * FROM room_users WHERE user_id = #{userId}")
   @Result(property = "room", column = "room_id", one = @One(select = "in.tech_camp.chat_app.repository.RoomRepository.findById"))
   List<RoomUserEntity> findByUserId(Integer userId);
+  //ユーザーidでroom_usersテーブルを検索する
 }

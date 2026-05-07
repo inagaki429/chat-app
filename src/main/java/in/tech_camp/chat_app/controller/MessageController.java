@@ -24,12 +24,15 @@ public class MessageController {
   private final RoomUserRepository roomUserRepository;
 
   @GetMapping("/message")
+//messageは仮のパス
   public String showMessages(@AuthenticationPrincipal CustomUserDetail currentUser, Model model) {
     // ログインユーザーの最新の情報を取得している
     UserEntity user = userRepository.findById(currentUser.getId());
     model.addAttribute("user", user);
     List<RoomUserEntity> roomUserEntities = roomUserRepository.findByUserId(currentUser.getId());
+    //中間テーブルを全部取得
     List<RoomEntity> roomList = roomUserEntities.stream()
+    //リストを加工する準備streamに変換
         .map(RoomUserEntity::getRoom)
         .collect(Collectors.toList());
     model.addAttribute("rooms", roomList);
