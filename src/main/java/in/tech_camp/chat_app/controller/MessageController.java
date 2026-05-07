@@ -34,9 +34,9 @@ public class MessageController {
 
   private final MessageRepository messageRepository;
 
-
   @GetMapping("/rooms/{roomId}/messages")
-  public String showMessages(@PathVariable("roomId") Integer roomId,@AuthenticationPrincipal CustomUserDetail currentUser, Model model) {
+  public String showMessages(@PathVariable("roomId") Integer roomId,
+      @AuthenticationPrincipal CustomUserDetail currentUser, Model model) {
 
     UserEntity user = userRepository.findById(currentUser.getId());
     model.addAttribute("user", user);
@@ -47,11 +47,12 @@ public class MessageController {
         .map(RoomUserEntity::getRoom)
         .collect(Collectors.toList());
     model.addAttribute("rooms", roomList);
-    //roomsに名前を変えている
+    // roomsに名前を変えている
 
     model.addAttribute("messageForm", new MessageForm());
     // インスタンス生成、ビューに渡す
-    model.addAttribute("roomId", roomId);
+    RoomEntity room = roomRepository.findById(roomId);
+    model.addAttribute("room", room);
 
     List<MessageEntity> messages = messageRepository.findByRoomId(roomId);
     model.addAttribute("messages", messages);
@@ -59,8 +60,9 @@ public class MessageController {
     return "messages/index";
   }
 
-   @PostMapping("/rooms/{roomId}/messages")
-  public String saveMessage(@PathVariable("roomId") Integer roomId, @ModelAttribute("messageForm") MessageForm messageForm, @AuthenticationPrincipal CustomUserDetail currentUser) {
+  @PostMapping("/rooms/{roomId}/messages")
+  public String saveMessage(@PathVariable("roomId") Integer roomId,
+      @ModelAttribute("messageForm") MessageForm messageForm, @AuthenticationPrincipal CustomUserDetail currentUser) {
     MessageEntity message = new MessageEntity();
     message.setContent(messageForm.getContent());
 
@@ -68,13 +70,13 @@ public class MessageController {
     RoomEntity room = roomRepository.findById(roomId);
     message.setUser(user);
     message.setRoom(room);
-    
+
     try {
       messageRepository.insert(message);
     } catch (Exception e) {
       System.out.println("エラー：" + e);
     }
-    
+
     return "redirect:/rooms/" + roomId + "/messages";
   }
 }
