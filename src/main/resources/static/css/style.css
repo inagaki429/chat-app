@@ -68,15 +68,18 @@
 
 }
 .header-button {
-  margin-top: 40px;
-}
-.header-button a {
-  color: darkred;
-  border: 1px solid darkred;
-  padding: 20px;
-  text-decoration: none;
+  margin-top: 20px;
 }
 
+.header-button input[type="submit"] {
+  text-decoration: none;
+  border: 1px solid darkred;
+  color: darkred;
+  background-color: #fff;
+  padding: 20px;
+  cursor: pointer;
+}
+/* header-buttonクラス内のボタン */
 
 .messages {
   background-color: #FAFAFA;
