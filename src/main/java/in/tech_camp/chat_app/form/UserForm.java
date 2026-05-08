@@ -17,6 +17,7 @@ public class UserForm {
   @NotBlank(message = "Email can't be blank", groups = ValidationPriority1.class)
   @Email(message = "Email should be valid", groups = ValidationPriority2.class)
   private String email;
+  //@Emailはメールアドレスっぽい表記かどうかを確かめるアノテーション
 
   @NotBlank(message = "Password can't be blank", groups = ValidationPriority1.class)
   @Length(min = 6, max = 128, message = "Password should be between 6 and 128 characters", groups = ValidationPriority2.class)
