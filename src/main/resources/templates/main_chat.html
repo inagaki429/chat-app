@@ -10,7 +10,10 @@
 
     <div class="right-header">
       <div class="header-button">
-        <a href="#">チャットを終了する</a>
+        <form th:action="@{/rooms/{roomId}/delete(roomId=${room.id})}" method="post">
+          <input type="submit" value="チャットを終了する" />
+          <!-- 削除ボタンの実装 -->
+        </form>
       </div>
     </div>
   </div>
