@@ -97,12 +97,23 @@ public class RoomController {
       roomUserEntity.setRoom(roomEntity);
       roomUserEntity.setUser(userEntity);
       //ルームとユーザーのセット
+      try {
+        roomUserRepository.insert(roomUserEntity);
+      } catch (Exception e) {
+        System.out.println("エラー：" + e);
+        List<UserEntity> users = userRepository.findAllExcept(currentUser.getId());
+        model.addAttribute("users", users);
+        model.addAttribute("roomForm", new RoomForm());
+        return "rooms/new";
+      }
+    }
       
         // ルームとユーザーの紐づけを１件ずつDBに保存している
 
-      }
+      
     
 
     return "redirect:/";
   }
+  
 }
