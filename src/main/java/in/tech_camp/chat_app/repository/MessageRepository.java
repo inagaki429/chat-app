@@ -14,18 +14,16 @@ import in.tech_camp.chat_app.entity.MessageEntity;
 
 @Mapper
 public interface MessageRepository {
-  @Insert("INSERT INTO messages(content, user_id, room_id) VALUES(#{content}, #{user.id}, #{room.id})")
+  @Insert("INSERT INTO messages(content, image, user_id, room_id) VALUES(#{content}, #{image}, #{user.id}, #{room.id})")
   @Options(useGeneratedKeys = true, keyProperty = "id")
   void insert(MessageEntity messageEntity);
-//created_atのカラムはデータベース保存時に自動で保存される
+  // created_atのカラムはデータベース保存時に自動で保存される
 
-@Select("SELECT * FROM messages WHERE room_id = #{roomId}")
+  @Select("SELECT * FROM messages WHERE room_id = #{roomId}")
   @Results(value = {
-    @Result(property = "createdAt", column = "created_at"),
-    @Result(property = "user", column = "user_id",
-            one = @One(select = "in.tech_camp.chat_app.repository.UserRepository.findById"))
+      @Result(property = "createdAt", column = "created_at"),
+      @Result(property = "user", column = "user_id", one = @One(select = "in.tech_camp.chat_app.repository.UserRepository.findById"))
   })
   List<MessageEntity> findByRoomId(Integer roomId);
-
 
 }
